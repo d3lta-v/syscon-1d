@@ -8,11 +8,11 @@
 #define MOSFET_PIN 11
 
 // Parameter constants
-const int TARGET_TEMPERATURE = 15;
-const long interval = 1000; // 1 seconds interval
+const int TARGET_TEMPERATURE = 13.5;
+const long interval = 500; // 0.5 second interval
 
 // Calibration constants for temperature sensor, consult datasheet and adjust accordingly
-const float CALIB_VOUT0 = 0.55;   // Output voltage in V when sensor is at 0˚C
+const float CALIB_VOUT0 = 0.64;   // Output voltage in V when sensor is at 0˚C
 const float CALIB_TC = 0.01;   // V/°C temperature coefficient for the MCP9701/A
 
 // Variables
@@ -49,16 +49,17 @@ void loop() {
 
   // Below is a simple implementation of an on-off controller with a differential of 17 to 19
   int pin_state = LOW;
-  if (temperature >= 19) {
+  if (temperature >= 14) {
     pin_state = HIGH;
   }
-  else if (temperature > 17 && temperature < 19 && temperature_diff < 0) {
+  else if (temperature > 13 && temperature < 14 && temperature_diff < 0) {
     pin_state = HIGH;
   }
   else {
     pin_state = LOW;
   }
-  digitalWrite(MOSFET_PIN, pin_state);
+  // digitalWrite(MOSFET_PIN, pin_state); // uncomment this if you want on-off control
+  analogWrite(MOSFET_PIN, (8.0f/12.0f)*255); // uncomment this if you want voltage control (change 8 to whatever voltage is wanted)
   
   // Print current temperature and time in miliseconds since start of program
   // Open the serial plotter to see the variables in real time
@@ -66,13 +67,13 @@ void loop() {
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
     delta_time = millis() - time_start;
-    Serial.print("current temperature:");
+    // Serial.print("current temperature:");
     Serial.print(temperature);
     Serial.print("," );
-    Serial.print("temperature error:");
+    // Serial.print("temperature error:");
     Serial.print(temperature_err);
     Serial.print("," );
-    Serial.print("MOSFET state:");
+    // Serial.print("MOSFET state:");
     Serial.print(pin_state*100);
     Serial.print("\n");
   }
